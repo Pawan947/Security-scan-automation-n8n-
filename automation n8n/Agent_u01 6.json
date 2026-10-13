@@ -1,0 +1,1764 @@
+{
+  "name": "Agent_u01 6",
+  "nodes": [
+    {
+      "parameters": {
+        "command": "=TARGET=\"{{ String($json.Target ?? '').match(/^(?:\\d{1,3}\\.){3}\\d{1,3}$/)?.[0] ?? 'INVALID_TARGET' }}\"; PORTS=\"{{ String($json['Ports?'] ?? '').match(/^\\d{1,5}(?:,\\d{1,5})*$/)?.[0] ?? 'INVALID_PORT' }}\"; [ \"$TARGET\" != \"INVALID_TARGET\" ] && [ \"$PORTS\" != \"INVALID_PORT\" ] || { echo \"Invalid target or ports\" >&2; exit 2; }; nmap -sV -p \"$PORTS\" -T5 \"$TARGET\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        -112
+      ],
+      "id": "096e8867-726b-4178-a0b4-8f42e4fca73e",
+      "name": "Get Network Info",
+      "credentials": {
+        "sshPassword": {
+          "id": "AdDirGY1pBRQRCwJ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "New Scan....?",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Target",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": " Extra Ports?"
+            }
+          ]
+        },
+        "options": {
+          "customCss": ":root {\n\t--font-family: 'Open Sans', sans-serif;\n\t--font-weight-normal: 400;\n\t--font-weight-bold: 600;\n\t--font-size-body: 12px;\n\t--font-size-label: 14px;\n\t--font-size-test-notice: 12px;\n\t--font-size-input: 14px;\n\t--font-size-header: 20px;\n\t--font-size-paragraph: 14px;\n\t--font-size-link: 12px;\n\t--font-size-error: 12px;\n\t--font-size-html-h1: 28px;\n\t--font-size-html-h2: 20px;\n\t--font-size-html-h3: 16px;\n\t--font-size-html-h4: 14px;\n\t--font-size-html-h5: 12px;\n\t--font-size-html-h6: 10px;\n\t--font-size-subheader: 14px;\n\n\t/* Colors */\n\t--color-background: #fbfcfe;\n\t--color-test-notice-text: #e6a23d;\n\t--color-test-notice-bg: #fefaf6;\n\t--color-test-notice-border: #f6dcb7;\n\t--color-card-bg: #ffffff;\n\t--color-card-border: #dbdfe7;\n\t--color-card-shadow: rgba(99, 77, 255, 0.06);\n\t--color-link: #7e8186;\n\t--color-header: #525356;\n\t--color-label: #555555;\n\t--color-input-border: #dbdfe7;\n\t--color-input-text: #71747A;\n\t--color-focus-border: rgb(90, 76, 194);\n\t--color-submit-btn-bg: #ff6d5a;\n\t--color-submit-btn-text: #ffffff;\n\t--color-error: #ea1f30;\n\t--color-required: #ff6d5a;\n\t--color-clear-button-bg: #7e8186;\n\t--color-html-text: #555;\n\t--color-html-link: #ff6d5a;\n\t--color-header-subtext: #7e8186;\n\n\t/* Border Radii */\n\t--border-radius-card: 8px;\n\t--border-radius-input: 6px;\n\t--border-radius-clear-btn: 50%;\n\t--card-border-radius: 8px;\n\n\t/* Spacing */\n\t--padding-container-top: 24px;\n\t--padding-card: 24px;\n\t--padding-test-notice-vertical: 12px;\n\t--padding-test-notice-horizontal: 24px;\n\t--margin-bottom-card: 16px;\n\t--padding-form-input: 12px;\n\t--card-padding: 24px;\n\t--card-margin-bottom: 16px;\n\n\t/* Dimensions */\n\t--container-width: 448px;\n\t--submit-btn-height: 48px;\n\t--checkbox-size: 18px;\n\n\t/* Others */\n\t--box-shadow-card: 0px 4px 16px 0px var(--color-card-shadow);\n\t--opacity-placeholder: 0.5;\n}"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -2512,
+        -448
+      ],
+      "id": "edc4b132-f6f3-4efc-8766-1b16e8c94484",
+      "name": "On form submission",
+      "webhookId": "4a73d3aa-3c6a-4fab-bf12-2590f622481b",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "65c6f362-65aa-43f9-9ad4-3859ffe649ea",
+              "name": "Target",
+              "value": "={{ $json.Target || $json.body.ipaddress }}",
+              "type": "string"
+            },
+            {
+              "id": "0694e1f8-9ec8-4c04-b8fb-4b82119dfbe5",
+              "name": "Ports?",
+              "value": "={{ $json['Ports?'] || $json.body.port}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2288,
+        -448
+      ],
+      "id": "b4507176-7dbd-4dbb-b5e4-41bb7dee345f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "command": "=TARGET=\"{{ String($json.Target ?? '').match(/^(?:\\d{1,3}\\.){3}\\d{1,3}$/)?.[0] ?? 'INVALID_TARGET' }}\"; [ \"$TARGET\" != \"INVALID_TARGET\" ] || { echo \"Invalid target\" >&2; exit 2; }; cd /home/kali/Desktop/scripts && sudo -n ./device_info.sh \"$TARGET\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        -320
+      ],
+      "id": "c186dd9a-2e85-4dca-940d-21cb7cc52155",
+      "name": "Get Network Info1",
+      "credentials": {
+        "sshPassword": {
+          "id": "AdDirGY1pBRQRCwJ",
+          "name": "SSH Password account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "command": "=TARGET=\"{{ String($json.Target ?? '').match(/^(?:\\d{1,3}\\.){3}\\d{1,3}$/)?.[0] ?? 'INVALID_TARGET' }}\"; [ \"$TARGET\" != \"INVALID_TARGET\" ] || { echo \"Invalid target\" >&2; exit 2; }; cd /home/kali/Desktop/scripts && sudo -n ./dns.sh \"$TARGET\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        -528
+      ],
+      "id": "45789434-737c-459e-a74f-3d6859e7b317",
+      "name": "Get Network Info2",
+      "credentials": {
+        "sshPassword": {
+          "id": "AdDirGY1pBRQRCwJ",
+          "name": "SSH Password account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "stdout",
+              "newKey": "check"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        -1648,
+        -736
+      ],
+      "id": "bc887d8a-f3eb-4d9d-96e4-c92267e8c3a2",
+      "name": "Rename Keys"
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "stdout",
+              "newKey": "bandwidth & snmp"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        -1648,
+        -528
+      ],
+      "id": "d06b2c22-39bd-45b9-b58c-e112f6191fba",
+      "name": "Rename Keys1"
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "stdout",
+              "newKey": "Services"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        -1664,
+        -320
+      ],
+      "id": "f1355e69-3b5c-49c0-b271-adef129effdf",
+      "name": "Rename Keys2"
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "stdout",
+              "newKey": "focus port"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        -1648,
+        -112
+      ],
+      "id": "4d0225b9-951e-4ccb-a8bf-aaa9b9644408",
+      "name": "Rename Keys3"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1424,
+        -496
+      ],
+      "id": "6d077ae4-ee5d-418d-9a5a-7c359af50048",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "check"
+            },
+            {
+              "fieldToAggregate": "bandwidth & snmp"
+            },
+            {
+              "fieldToAggregate": "Services"
+            },
+            {
+              "fieldToAggregate": "focus port"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        -464
+      ],
+      "id": "5217dc15-9f5d-45cb-9c94-66cc4a6991ee",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a94bbc00-6a11-4c99-824f-af09eaecacec",
+              "name": "check",
+              "value": "={{ $json.check }}",
+              "type": "string"
+            },
+            {
+              "id": "42c5c656-35de-443c-8ffa-5fee4dfe0446",
+              "name": "bandwidth & snmp",
+              "value": "={{ $json['bandwidth & snmp'] }}",
+              "type": "string"
+            },
+            {
+              "id": "3d8467a4-2e7b-4506-a7df-c2f887e3f078",
+              "name": "Services",
+              "value": "={{ $json.Services }}",
+              "type": "string"
+            },
+            {
+              "id": "a3bf1c45-af02-4f18-8e7b-2e83c2df8100",
+              "name": "focus port",
+              "value": "={{ $json['focus port'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -928,
+        -880
+      ],
+      "id": "995e186c-72d7-4e13-b1dd-f0775a9602d2",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "command": "=printf \"%s\\n\" \"AI command execution is disabled. Review the recommended command manually.\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -384
+      ],
+      "id": "67b69c48-cfa3-4c37-a473-eed83e7d821e",
+      "name": "Execute a command",
+      "credentials": {
+        "sshPassword": {
+          "id": "AdDirGY1pBRQRCwJ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "stdout",
+              "newKey": "out3"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -384
+      ],
+      "id": "c1e9d5f4-204e-4b22-91bc-d0596edf0d35",
+      "name": "Rename Keys4"
+    },
+    {
+      "parameters": {
+        "command": "=printf \"%s\\n\" \"AI command execution is disabled. Review the recommended command manually.\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -544
+      ],
+      "id": "0cf5304c-d032-4891-8cc0-8d50233621ed",
+      "name": "Execute a command2",
+      "credentials": {
+        "sshPassword": {
+          "id": "AdDirGY1pBRQRCwJ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "stdout",
+              "newKey": "out2"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -544
+      ],
+      "id": "0df4d38c-7f16-4e48-bf7b-c5fe6271099e",
+      "name": "Rename Keys6"
+    },
+    {
+      "parameters": {
+        "command": "=printf \"%s\\n\" \"AI command execution is disabled. Review the recommended command manually.\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -704
+      ],
+      "id": "81076174-80df-4007-b501-40377ba6340c",
+      "name": "Execute a command3",
+      "credentials": {
+        "sshPassword": {
+          "id": "AdDirGY1pBRQRCwJ",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keys": {
+          "key": [
+            {
+              "currentKey": "stdout",
+              "newKey": "out1"
+            }
+          ]
+        },
+        "additionalOptions": {}
+      },
+      "type": "n8n-nodes-base.renameKeys",
+      "typeVersion": 1,
+      "position": [
+        496,
+        -704
+      ],
+      "id": "564946cb-0d37-493c-aff0-ca7f509b63ca",
+      "name": "Rename Keys7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8d79197d-a762-42ca-820d-0e5f6972840d",
+              "leftValue": "={{ $json.error[0] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ccacc65f-95b9-4f63-83fa-483f4a62946e",
+              "leftValue": "={{ $json.check[0] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -560,
+        -368
+      ],
+      "id": "8112ce53-1343-4e15-8a1f-6bea3056d443",
+      "name": "If4"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -928,
+        -592
+      ],
+      "id": "07771267-7fb6-4e14-9bbf-8873857d6e85",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -240
+      ],
+      "id": "d37a5ac5-703f-431f-a4f8-3c12afcbf68a",
+      "name": "Google Gemini Chat Model7",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "vEyQuV79M8XIltB7",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        -224
+      ],
+      "id": "14aa372a-77c7-4c1a-8ffb-b7fb19916fb5",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0faaf7f2-160e-437b-914d-66913ea4361c",
+              "name": "check",
+              "value": "={{ $json.check }}",
+              "type": "string"
+            },
+            {
+              "id": "b539d575-7b9c-40ae-868e-34a176e29759",
+              "name": "bandwidth & snmp",
+              "value": "={{ $json['bandwidth & snmp'] }}",
+              "type": "string"
+            },
+            {
+              "id": "475a1fb4-4b43-4d27-8950-3fa08221e82d",
+              "name": "Services",
+              "value": "={{ $json.Services }}",
+              "type": "string"
+            },
+            {
+              "id": "c24b414f-f32d-4cb1-8cf5-0331b12eae0b",
+              "name": "focus port",
+              "value": "={{ $json['focus port'] }}",
+              "type": "string"
+            },
+            {
+              "id": "748156f9-9402-45a1-9329-5942577c9de7",
+              "name": "error",
+              "value": "={{ $json.error }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -576,
+        -560
+      ],
+      "id": "7c254ba1-7c5b-431b-be36-62de91084f50",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "check"
+            },
+            {
+              "fieldToAggregate": "bandwidth & snmp"
+            },
+            {
+              "fieldToAggregate": "Services"
+            },
+            {
+              "fieldToAggregate": "focus port"
+            },
+            {
+              "fieldToAggregate": "error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -368
+      ],
+      "id": "903d61b7-df4e-4d24-a098-86ff85821d99",
+      "name": "Aggregate4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "71fc9bb1-01a7-4552-a0bd-30d84a525b93",
+              "leftValue": "={{ $json.output[\"risk percentage\"] }}",
+              "rightValue": "=0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        128,
+        -528
+      ],
+      "id": "f0c67c30-2e41-40dd-88cc-6716fac278d2",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0a3b290e-22b1-4918-be9a-4f8c247a4d0b",
+              "name": "output.cmd01",
+              "value": "={{ $json.output.cmd1 ?? $json.output.cmd01 }}",
+              "type": "string"
+            },
+            {
+              "id": "fe8d3b5a-1865-4319-ad3a-13375a27a610",
+              "name": "output.cmd02",
+              "value": "={{ $json.output.cmd2 ?? $json.output.cmd02 }}",
+              "type": "string"
+            },
+            {
+              "id": "df5ca25a-41a1-4491-9992-17ac01e8e41d",
+              "name": "output.cmd03",
+              "value": "={{ $json.output.cmd3 ?? $json.output.cmd03}}",
+              "type": "string"
+            },
+            {
+              "id": "ddb85c05-620f-4b4a-9c19-d120499552a0",
+              "name": "output[\"risk percentage\"]",
+              "value": "={{ $json.output[\"risk percentage\"] }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        -576
+      ],
+      "id": "3a7fa6b4-462b-43a6-a29a-873512026666",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        800,
+        -608
+      ],
+      "id": "7ce93987-d286-4e73-82c9-03b820bc40a6",
+      "name": "Merge4"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "out1"
+            },
+            {
+              "fieldToAggregate": "out2"
+            },
+            {
+              "fieldToAggregate": "out3"
+            },
+            {
+              "fieldToAggregate": "check",
+              "renameField": true,
+              "outputFieldName": "scan1"
+            },
+            {
+              "fieldToAggregate": "bandwidth & snmp",
+              "renameField": true,
+              "outputFieldName": "scan2"
+            },
+            {
+              "fieldToAggregate": "Services",
+              "renameField": true,
+              "outputFieldName": "scan3"
+            },
+            {
+              "fieldToAggregate": "focus port",
+              "renameField": true,
+              "outputFieldName": "scan4"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        992,
+        -560
+      ],
+      "id": "4176f381-80a8-4e68-a5f8-2ba25eb33edf",
+      "name": "Aggregate5"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "http://127.0.0.1:3001/mcp",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.2,
+      "position": [
+        1936,
+        -112
+      ],
+      "id": "acec4608-abbe-45c6-b3da-01eb04f26c99",
+      "name": "kali4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1ec8dfdf-0aee-49e1-9264-c046915264fd",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        -880
+      ],
+      "id": "80860076-6f42-4c60-9178-917fe4c9dc12",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "history"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1184,
+        -112
+      ],
+      "id": "5d8802c8-9966-47c7-9b5f-9f44de11383c",
+      "name": "Simple Memory5"
+    },
+    {
+      "parameters": {
+        "errorMessage": "=Kuch tohh.... {{ $json.error }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -288
+      ],
+      "id": "a2c7c74b-e422-4181-afcc-3f6f3770eb36",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>System Report</title>\n</head>\n<body>\n\n  <h1>🛡️ System Security Report</h1>\n  <hr>\n\n  <!-- System Info -->\n  <h2>📊 System Info</h2>\n  <ul>\n    {{\n      ($json.output['System info'] || '')\n        .split('\\n')\n        .map(line => {\n          if (line.includes(':')) {\n            let parts = line.split(':');\n            return `<li><b>${parts[0]}:</b> ${parts.slice(1).join(':')}</li>`;\n          }\n          return `<li>${line}</li>`;\n        })\n        .join('')\n    }}\n  </ul>\n\n  <hr>\n\n  <!-- Key Findings -->\n  <h2>🔍 Key Findings</h2>\n  <ol>\n    {{\n      ($json.output['Key Findings'] || '')\n        .split('\\n')\n        .filter(line => line.trim() !== '')\n        .map(line => {\n          let parts = line.split('–');\n          if (parts.length > 1) {\n            return `<li><b>${parts[0]}</b> – ${parts.slice(1).join('–')}</li>`;\n          }\n          return `<li>${line}</li>`;\n        })\n        .join('')\n    }}\n  </ol>\n\n  <hr>\n\n  <!-- Main Attack Paths -->\n  <h2>🚨 Main Attack Paths</h2>\n  <div>\n    {{\n      ($json.output['Main Attack Paths'] || '')\n        .split('\\n\\n')\n        .map(block => {\n          let lines = block.split('\\n');\n\n          let title = lines[0] || '';\n          let details = lines.slice(1)\n            .map(line => {\n              if (line.startsWith('*')) {\n                let clean = line.replace('*', '').trim();\n                let parts = clean.split(':');\n                return `<li><b>${parts[0]}:</b> ${parts.slice(1).join(':')}</li>`;\n              }\n              return `<li>${line}</li>`;\n            })\n            .join('');\n\n          return `\n            <div>\n              <h3>${title}</h3>\n              <ul>${details}</ul>\n            </div>\n          `;\n        })\n        .join('')\n    }}\n  </div>\n\n  <hr>\n\n  <!-- Evidences -->\n  <h2>📂 Evidences</h2>\n  <ul>\n    {{\n      Array.isArray($json.output.Evidences)\n        ? $json.output.Evidences.map(e => `<li>${e}</li>`).join('')\n        : `<li>${$json.output.Evidences || 'No evidences found'}</li>`\n    }}\n  </ul>\n\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1984,
+        -864
+      ],
+      "id": "d6747b83-c0a0-4eb6-addd-021e33c37270",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "openai/gpt-oss-20b",
+          "mode": "list",
+          "cachedResultName": "openai/gpt-oss-20b"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1424,
+        368
+      ],
+      "id": "3ff6819a-9146-48ec-83d4-6b624f10a686",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "hW4rRAFcCsACYJkV",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        480
+      ],
+      "id": "9f3677f2-6657-4a78-aceb-9b0d7adb56da",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "udeO8z0VFpWYg4OC",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "=report to process\n{{ $json.output }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "System info",
+              "description": "Target: OS(with version highest confidence): Open Ports: Services:, Technologies:"
+            },
+            {
+              "name": "Key Findings",
+              "description": "[Port] [Service] – [Issue] for each"
+            },
+            {
+              "name": "Main Attack Paths",
+              "description": "=[Name]\nEntry:\nMethod:\nImpact:"
+            },
+            {
+              "name": "Evidences",
+              "description": "raw evidences pointed"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are a penetration tester.\n\nAnalyze the report and extract only verified technical information.\n\nDo NOT explain.\nDo NOT add extra words.\nDo NOT assume missing data.\nDo NOT include unnecessary text.\n\n---\n\n## OUTPUT FORMAT\n\n### 🖥️ System Info\n\n* Target:\n* OS:\n* Open Ports:\n* Services:\n* Technologies:\n\n---\n\n### 🔑 Key Findings\n\n* [Port] [Service] – [Issue]\n* [Port] [Service] – [Issue]\n\n---\n\n### ⚠️ Main Attack Paths\n\n#### 🔴 1. [Name]\n\n* Entry:\n* Method:\n* Impact:\n\n#### 🟠 2. [Name]\n\n* Entry:\n* Method:\n* Impact:\n\n#### 🟡 3. [Name]\n\n* Entry:\n* Method:\n* Impact:\n\n---\n\n### 🧠 Assessment\n\n* Risk:\n* Critical Issue:\n* Fix:\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        2176,
+        -512
+      ],
+      "id": "9963d3b9-9a73-49e7-9d35-ec885087a3d0",
+      "name": "Information Extractor2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2256,
+        -352
+      ],
+      "id": "b1f7ae0c-7f74-4335-b839-ac6f26509867",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "vEyQuV79M8XIltB7",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "=You are a reconnaissance analyst in an authorized CTF/lab environment.\n\nINPUT:\n- Target: {{ $json.check ?? $json.text }}\n- Network/SNMP: {{ $json['bandwidth & snmp'] }}\n- Services: {{ $json.Services }}\n- Focus Ports: {{ $json['focus port'] }}\n\nGOAL: Deep information gathering only. No exploitation.\n\n---\n\n### 🎯 TARGET SELECTION LOGIC (CRITICAL)\n\nDo NOT treat all ports equally.\n\nFor EACH service, assign a **Recon Value Score (1–10)** based on:\n\n+3 → Exposes user/account data (SMB, RPC, LDAP, SNMP, SMTP)\n+2 → Allows unauthenticated/anonymous access\n+2 → Web service with login, API, or dynamic content\n+1 → Non-standard or unusual port\n+1 → Version/banner clearly visible\n+1 → Multiple services linked to same host/domain\n\n-2 → Encrypted with no info leakage\n-2 → Filtered / no response / useless banner\n\n👉 Select ONLY highest scoring targets (top 3–5). Ignore low-value noise.\n\n---\n\n### 🧠 RECON STRATEGY (DEEP ENUMERATION)\n\nFor each selected target:\n\n1. Fingerprint deeply  \n   → version, OS, headers, banners, configs  \n\n2. Protocol Enumeration  \n   → SMB: users, shares  \n   → SNMP: system, processes, interfaces  \n   → HTTP: headers, tech stack (NO dirb/gobuster)  \n   → DNS: records, subdomains  \n\n3. Misconfiguration Detection  \n   → anonymous access, default configs  \n\n4. Cross-Service Correlation  \n   → usernames reused across services  \n   → domains → certs → web → SMB  \n   → versions → searchsploit (info only)\n\n---\n\n### ⚙️ TOOL RULES\n\n- Use ONLY Kali preinstalled tools  \n- NO dirb / gobuster  \n- NO brute-force  \n- NO exploitation  \n\nAllowed examples:\nnmap, enum4linux, smbclient, rpcclient, ldapsearch, snmpwalk, dig, whatweb, nikto, curl, nc\n\n---\n\n### ⚡ COMMAND STYLE\n\n- Chain commands using: && and pipes  \n- Keep commands efficient and info-dense  \n- No strict timeout required  \n\n---\n\n### 📤 OUTPUT (IMPORTANT)\n\nFirst:\nTop Targets (with score + reason)\n\nThen ONLY commands:\n\ncmd1  \ncmd2  \ncmd3  \n...\n\n---\n\n### 🚨 RULES\n\n- Flag ANY unauthenticated access as HIGH VALUE  \n- Ignore low-value ports completely  \n- Stay focused on intelligence, not scanning everything  \n\n---\n\nEnd with:\n\"✅ Recon complete. Observational only.\"",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "cmd1",
+              "description": "next single (kali only default tool)cammand required according to report "
+            },
+            {
+              "name": "cmd2",
+              "description": "next single (kali only default tool)cammand required according to report "
+            },
+            {
+              "name": "cmd3",
+              "description": "next single (kali only default tool)cammand required according to report "
+            },
+            {
+              "name": "risk percentage",
+              "type": "number",
+              "description": "score how much chance of getting rist out of 100 it must int value range from 0 to 10",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -608
+      ],
+      "id": "6a376f73-f6ab-42dd-9a3a-3078d883b4f0",
+      "name": "CMS1",
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "text": "=here is detail report\n\n {{ $json.check }}\n{{ $json['bandwidth & snmp'] }}\n{{ $json.Services }}\n{{ $json['focus port'] }}(security risks)\n\nuse default kali tools only and every cammand have time out of 10sec",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "cmd01",
+              "description": "next single (kali only default tool)cammand required according to report "
+            },
+            {
+              "name": "cmd02",
+              "description": "next single (kali only default tool)cammand required according to report "
+            },
+            {
+              "name": "cmd03",
+              "description": "next single (kali only default tool)cammand required according to report "
+            },
+            {
+              "name": "risk percentage",
+              "type": "number",
+              "description": "score how much chance of getting rist out of 100 it must int value range from 0 to 10"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -384
+      ],
+      "id": "d815a8f7-d160-41cd-8cf8-37032333219e",
+      "name": "CMS2",
+      "retryOnFail": false,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "user",
+              "message": "=phase 2: \n\n{{ $json.out1 }}\n{{ $json.out2 }}\n{{ $json.out3 }}\n\nphase1:\n\n{{ $json.scan1 }}\n{{ $json.scan2 }}\n{{ $json.scan3 }}\n{{ $json.scan4 }}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        1232,
+        -400
+      ],
+      "id": "c223ea9b-4bc6-4af1-b78c-6c1e9cf19b33",
+      "name": "Mem-UPDATE"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        1232,
+        -288
+      ],
+      "id": "d09438bd-32bf-49b0-b6b4-5a7a3fdc5e83",
+      "name": "Mem-READ"
+    },
+    {
+      "parameters": {
+        "errorMessage": "\"Risk percentage very low\""
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -208
+      ],
+      "id": "d1553eb7-0e4a-49f9-a844-68e5a31b90fb",
+      "name": "Stop and Error1"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Conversation Viewer</title>\n</head>\n<body>\n\n<h1>Conversation Viewer</h1>\n<hr>\n\n<div id=\"output\"></div>\n\n<script>\nconst data = {{ JSON.stringify($json.messages) }};\n\nfunction escapeHTML(text) {\n    return text\n        .replace(/&/g, \"&amp;\")\n        .replace(/</g, \"&lt;\")\n        .replace(/>/g, \"&gt;\");\n}\n\nfunction formatText(text) {\n    if (!text) return \"\";\n\n    const clean = escapeHTML(text);\n\n    // Detect structured/log content\n    if (\n        clean.includes(\"Nmap\") ||\n        clean.includes(\"PORT\") ||\n        clean.includes(\"HTTP/\") ||\n        clean.includes(\"{\") ||\n        clean.includes(\"[\") ||\n        clean.includes(\"function\") ||\n        clean.includes(\"script\")\n    ) {\n        return \"<pre>\" + clean + \"</pre>\";\n    }\n\n    return \"<p>\" + clean + \"</p>\";\n}\n\nlet html = \"\";\n\ndata.forEach((msg, index) => {\n    html += \"<section>\";\n\n    html += \"<h2>Message \" + (index + 1) + \"</h2>\";\n\n    if (msg.human) {\n        html += \"<h3>Human</h3>\";\n        html += formatText(msg.human);\n    }\n\n    if (msg.ai) {\n        html += \"<h3>AI</h3>\";\n        html += formatText(msg.ai);\n    }\n\n    html += \"<hr>\";\n    html += \"</section>\";\n});\n\ndocument.getElementById(\"output\").innerHTML = html;\n</script>\n\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1984,
+        -1040
+      ],
+      "id": "b907fab8-f6cf-4086-9181-25c7c102d38f",
+      "name": "HTML1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        -960
+      ],
+      "id": "58aaa568-75a1-4292-a147-f93f75747ca2",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "openai/gpt-oss-120b",
+          "mode": "list",
+          "cachedResultName": "openai/gpt-oss-120b"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        -720
+      ],
+      "id": "df4044f8-4233-4c6d-966d-dd52d026f928",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "hW4rRAFcCsACYJkV",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "openai/gpt-oss-20b",
+          "mode": "list",
+          "cachedResultName": "openai/gpt-oss-20b"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        -112
+      ],
+      "id": "57ee2a09-6eb0-45c4-a72f-5b9038cf8f52",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "hW4rRAFcCsACYJkV",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=SYSTEM PROMPT — SENIOR PENETRATION TESTER (REASONING ENGINE)\n=============================================================\n\nROLE & OBJECTIVE\n----------------\nYou are a Senior Penetration Tester specializing in structured threat analysis,\nlogical reasoning, and attack path construction. Your goal is NOT to produce\ncommands or exploit code. Your goal is to think rigorously, reason transparently,\nand construct well-justified attack narratives from raw scan data.\n\nYou reason like an expert analyst: connecting observations into inferences,\ninferences into chains, and chains into prioritized attack paths.\n\nTOOL ACCESS\n-----------\nYou have access to a tool named `ts9`.\nUse `ts9` whenever you need to retrieve additional scan-related information,\nclarify ambiguous findings, or enrich your analysis with supplementary data.\nAlways explain why you are calling it before doing so.\n\n=====================\nINPUT DATA\n=====================\n\nREPORT:\n-------\n\n\nPHASE 1 — RAW SCAN DATA:\n  Scan 1 : {{ $json.scan1 }}\n  Scan 2 : {{ $json.scan2 }}\n  Scan 3 : {{ $json.scan3 }}\n  Scan 4 : {{ $json.scan4 }}\n\nPHASE 2 — PROCESSED OUTPUT:\n  Output 1 : {{ $json.out1 }}\n  Output 2 : {{ $json.out2 }}\n  Output 3 : {{ $json.out3 }}\n\n=====================\nANALYSIS INSTRUCTIONS\n=====================\n\nFollow every step below in order. Do not skip any section.\nThink out loud throughout. Show your reasoning at every stage.\n\n──────────────────────────────────────────────────────────────\nSTEP 1 — OBSERVATION EXTRACTION (Break Down the Raw Data)\n──────────────────────────────────────────────────────────────\nRead all input data carefully. Extract every meaningful finding.\n\nFor each observation:\n  - State WHAT was found (fact from the data)\n  - State WHAT IT IMPLIES (your interpretation)\n  - Assign an observation ID (e.g., OBS-01, OBS-02 ...)\n\nRules:\n  - Be specific. Vague observations are not allowed.\n  - Do not mix findings from different phases without labeling them.\n  - Flag any contradictions or inconsistencies between phases.\n\n──────────────────────────────────────────────────────────────\nSTEP 2 — KEY INFERENCES (From Data to Insight)\n──────────────────────────────────────────────────────────────\nFor each significant observation or group of related observations, produce\na structured inference block:\n\n  Finding     : [Reference OBS-IDs]\n  Meaning     : What does this finding actually tell us?\n  Importance  : Why does it matter in the context of this target?\n  Enables     : What attack surface, opportunity, or risk does it introduce?\n\nRules:\n  - Do not restate the observation — interpret it.\n  - Connect related observations together where relevant.\n  - Distinguish between confirmed facts and reasoned inferences.\n    Use language like \"this confirms...\", \"this suggests...\",\n    \"this implies with medium confidence...\", etc.\n\n──────────────────────────────────────────────────────────────\nSTEP 3 — LOGICAL REASONING CHAINS\n──────────────────────────────────────────────────────────────\nConstruct explicit cause-and-effect chains linking your observations\nand inferences into attack narratives.\n\nRequired format for each chain:\n\n  Chain ID   : CHAIN-01\n  Title      : [Descriptive name, e.g., \"Open Port → Credential Attack → Admin Control\"]\n  Premise    : [Starting observation(s)]\n  Step 1     : [Observation] → implies [inference]\n  Step 2     : [Inference] → enables [condition or opportunity]\n  Step 3     : [Condition] → leads to [potential impact]\n  ...\n  Conclusion : [Final attacker-relevant outcome]\n  Confidence : [High / Medium / Low] — justify briefly\n\nRules:\n  - Every step must be justified. No leaps without explanation.\n  - Each chain must be internally consistent.\n  - Chains may branch (e.g., \"if X is true → path A; if X is false → path B\").\n  - Minimum 3 steps per chain.\n\n──────────────────────────────────────────────────────────────\nSTEP 4 — EXPLOITABILITY ANALYSIS\n──────────────────────────────────────────────────────────────\nFor each identified weakness or vulnerability, produce a structured block:\n\n  Weakness      : [Name / description of the weakness]\n  Mechanism     : How could this weakness be exploited? (conceptually only)\n  Preconditions : What must be true for exploitation to succeed?\n  Evidence      : Which observations from the data support this?\n  Constraints   : What would prevent or complicate exploitation?\n  Severity      : [Critical / High / Medium / Low] — with brief justification\n\nRules:\n  - NO exploit code, payloads, commands, or tool syntax.\n  - Describe exploitation in terms of logic and conditions, not mechanics.\n  - Explicitly separate what is confirmed from what is assumed.\n\n──────────────────────────────────────────────────────────────\nSTEP 5 — ATTACK PATH CONSTRUCTION\n──────────────────────────────────────────────────────────────\nBuild complete end-to-end attack paths using the following format:\n\n  Path ID             : PATH-01\n  Title               : [Short descriptive label]\n  Initial Observation : [What in the scan data opens this path?]\n  Inference           : [What does that finding imply?]\n  Opportunity         : [What does this allow an attacker to attempt?]\n  Next Logical Move   : [What is the logical next action conceptually?]\n  Possible Outcome    : [What access or impact could result?]\n  Dependencies        : [What must be true / confirmed first?]\n  Linked Chains       : [Reference relevant CHAIN-IDs]\n\nRules:\n  - Each path must be realistic and grounded in the scan data.\n  - Paths may share observations but must have distinct goals or outcomes.\n  - If a path relies on a prior path succeeding, state that dependency clearly.\n  - Paths that require significant unknowns must be flagged as speculative.\n\n──────────────────────────────────────────────────────────────\nSTEP 6 — PRIORITY RANKING & JUSTIFICATION\n──────────────────────────────────────────────────────────────\nRank all attack paths from highest to lowest priority.\n\nFor each ranked path provide:\n\n  Rank        : [1, 2, 3 ...]\n  Path        : [PATH-ID and title]\n  Likelihood  : [High / Medium / Low] — How probable is successful exploitation?\n  Impact      : [Critical / High / Medium / Low] — What access does it grant?\n  Effort      : [Low / Medium / High] — How much skill/time does it require?\n  Rationale   : A logical explanation for this ranking (2–4 sentences minimum).\n                Must reference specific evidence from the data.\n\nRules:\n  - Ranking must be reasoned, not heuristic or instinctive.\n  - Explicitly justify why one path ranks above another.\n  - Consider combined likelihood × impact, not either alone.\n\n──────────────────────────────────────────────────────────────\nSTEP 7 — ASSUMPTIONS & UNKNOWNS\n──────────────────────────────────────────────────────────────\nBe transparent about the limits of your analysis.\n\nFor each assumption or unknown:\n\n  ID          : ASSUMP-01 / UNKNOWN-01\n  Statement   : What is being assumed, or what information is missing?\n  Basis       : Why was this assumption made? What evidence supports it?\n  Impact      : How does this assumption affect the analysis or a specific path?\n  Resolution  : What additional data would confirm or refute this?\n\nRules:\n  - List ALL significant assumptions, even seemingly obvious ones.\n  - Distinguish between assumptions (you chose to believe X) and\n    unknowns (you simply don't have data on Y).\n  - If an assumption is invalidated, state which paths collapse and which\n    alternative paths open.\n\n═══════════════════════════════════════════════════════════════\nOUTPUT FORMAT REQUIREMENTS\n═══════════════════════════════════════════════════════════════\n\nStructure your final output using these exact sections, in this order:\n\n  1. OBSERVATIONS          (labeled OBS-01, OBS-02 ...)\n  2. KEY INFERENCES        (grouped by theme)\n  3. REASONING CHAINS      (labeled CHAIN-01, CHAIN-02 ...)\n  4. EXPLOITABILITY        (one block per weakness)\n  5. ATTACK PATHS          (labeled PATH-01, PATH-02 ...)\n  6. PRIORITY RANKING      (table + justification)\n  7. ASSUMPTIONS & UNKNOWNS (labeled ASSUMP-01, UNKNOWN-01 ...)\n  8. ANALYST SUMMARY       (2–3 paragraph narrative conclusion)\n\nUse clear headers and consistent formatting throughout.\n\n═══════════════════════════════════════════════════════════════\nABSOLUTE RULES — MUST FOLLOW AT ALL TIMES\n═══════════════════════════════════════════════════════════════\n\n  ✗  DO NOT provide commands, exploit code, payloads, or tool flags.\n  ✗  DO NOT jump to conclusions without showing the reasoning that leads there.\n  ✗  DO NOT treat findings in isolation — always connect them into chains.\n  ✗  DO NOT state a severity or risk level without justifying it.\n  ✗  DO NOT fabricate findings not present in the input data.\n\n  ✓  DO think out loud at every step.\n  ✓  DO distinguish facts from inferences from assumptions.\n  ✓  DO flag contradictions or data quality issues.\n  ✓  DO use `ts9` when additional scan data would improve your analysis.\n  ✓  DO focus on WHY and HOW, never on WHAT TO RUN.\n  ✓  DO reason as an expert analyst reviewing a real engagement.",
+        "options": {
+          "systemMessage": "you are security agent you have all info scans in your memory and by using that verify and get more details about target and you have tool name executor to run default kali tools excluding dirb,gobuster "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1232,
+        -512
+      ],
+      "id": "2a9a9b02-a551-4572-8a85-6c266bdf9644",
+      "name": "OSS-120B"
+    },
+    {
+      "parameters": {
+        "command": "=TARGET=\"{{ String($json.Target ?? '').match(/^(?:\\d{1,3}\\.){3}\\d{1,3}$/)?.[0] ?? 'INVALID_TARGET' }}\"; [ \"$TARGET\" != \"INVALID_TARGET\" ] || { echo \"Invalid target\" >&2; exit 2; }; cd /home/kali/Desktop/scripts && sudo -n ./auto.sh \"$TARGET\""
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -1872,
+        -736
+      ],
+      "id": "9b62f4ab-a3f8-4d59-82be-1baaf406b469",
+      "name": "Get Network Info3",
+      "executeOnce": false,
+      "credentials": {
+        "sshPassword": {
+          "id": "AdDirGY1pBRQRCwJ",
+          "name": "SSH Password account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9110577a-2cdf-47a6-a1ff-897fa0597c8c",
+        "options": {},
+        "authentication": "headerAuth"
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2560,
+        -160
+      ],
+      "id": "49366dd9-c5d6-4fae-8b4c-f7a79ef1e3f5",
+      "name": "Webhook",
+      "webhookId": "9110577a-2cdf-47a6-a1ff-897fa0597c8c",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RELINK_HEADER_AUTH_AFTER_IMPORT",
+          "name": "Scan Webhook Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8080/api/scan-results",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.output }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2704,
+        -512
+      ],
+      "id": "ee90ac9d-df48-4725-b32a-aa4cd19542f8",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "RELINK_HEADER_AUTH_AFTER_IMPORT",
+          "name": "Scan Webhook Header Auth"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Network Info": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get Network Info2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Network Info1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Network Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Network Info3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Network Info2": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Network Info1": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Keys": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Keys1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Rename Keys2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Rename Keys3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CMS1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a command": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Keys4": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Execute a command2": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a command3": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "CMS2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CMS2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Aggregate4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate4": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Execute a command3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute a command2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute a command",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rename Keys7": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Rename Keys6": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge4": {
+      "main": [
+        [
+          {
+            "node": "Aggregate5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate5": {
+      "main": [
+        [
+          {
+            "node": "Mem-UPDATE",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OSS-120B",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "kali4": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Merge4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory5": {
+      "ai_memory": [
+        [
+          {
+            "node": "Mem-UPDATE",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Mem-READ",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "OSS-120B",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor2": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CMS1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "CMS2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mem-UPDATE": {
+      "main": [
+        [
+          {
+            "node": "Mem-READ",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OSS-120B",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mem-READ": {
+      "main": [
+        [
+          {
+            "node": "HTML1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Operation, do nothing": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CMS1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "OSS-120B",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OSS-120B": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Network Info3": {
+      "main": [
+        [
+          {
+            "node": "Rename Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "0e596b00-084e-466e-9663-a009ac527653",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3cf1d449b1c54ecc4b99cf4136c522bb2177f8bb990025c2c2259712a44125e3"
+  },
+  "id": "30JZ3IpZ8DbBNDOF",
+  "tags": []
+}

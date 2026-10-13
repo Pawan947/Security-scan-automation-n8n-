@@ -1,0 +1,35 @@
+name: Java CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Validate n8n workflow JSON and safety policy
+        run: |
+          python -m json.tool "automation n8n/Agent_u01 6.json" > /dev/null
+          python scripts/validate_workflow.py
+
+      - name: Validate shell syntax
+        run: bash -n "linux bash/"*.sh
+
+      - name: Run tests
+        run: ./mvnw --batch-mode test

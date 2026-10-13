@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynkScreen — Security Scanner</title>
+    <meta name="description" content="Real-time security scan dashboard powered by n8n">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-card-hover: rgba(25, 34, 56, 0.85);
+            --border-color: rgba(99, 102, 241, 0.15);
+            --border-glow: rgba(99, 102, 241, 0.4);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-indigo: #6366f1;
+            --accent-cyan: #22d3ee;
+            --accent-emerald: #34d399;
+            --severity-critical: #ef4444;
+            --severity-high: #f97316;
+            --severity-medium: #eab308;
+            --severity-low: #22d3ee;
+            --gradient-hero: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                    radial-gradient(ellipse at 50% 80%, rgba(34, 211, 238, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .header-logo .shield-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-hero);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-hero);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        /* Glass card base */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-color);
+        }
+
+        /* Send Form */
+        .send-section {
+            margin-bottom: 2rem;
+        }
+
+        .send-section .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-header .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .icon-send {
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.65rem 1rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-scan {
+            padding: 0.65rem 1.75rem;
+            background: var(--gradient-hero);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-scan:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.45);
+        }
+
+        .btn-scan:active {
+            transform: translateY(0);
+        }
+
+        .btn-scan:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .send-status {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            min-height: 1.2em;
+        }
+
+        .send-status.success {
+            color: var(--accent-emerald);
+        }
+
+        .send-status.error {
+            color: var(--severity-critical);
+        }
+
+        /* Results Section */
+        .results-section {
+            margin-top: 1.5rem;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .results-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .results-header h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.waiting {
+            background: rgba(100, 116, 139, 0.2);
+            color: var(--text-muted);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+
+        .status-badge.waiting .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        .status-badge.connected {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .status-badge.connected .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-emerald);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Placeholder */
+        .results-placeholder {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .results-placeholder .placeholder-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .results-placeholder p {
+            font-size: 0.9rem;
+        }
+
+        .results-placeholder .sub {
+            font-size: 0.78rem;
+            margin-top: 0.35rem;
+            opacity: 0.6;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: var(--border-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .result-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .result-card-header .card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .result-card-header h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+        }
+
+        .icon-system { background: rgba(99, 102, 241, 0.15); }
+        .icon-findings { background: rgba(249, 115, 22, 0.15); }
+        .icon-attacks { background: rgba(239, 68, 68, 0.15); }
+        .icon-evidence { background: rgba(34, 211, 238, 0.15); }
+
+        /* System info items */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .info-item {
+            padding: 0.65rem 0.85rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.05);
+        }
+
+        .info-item .info-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-item .info-value {
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            word-break: break-all;
+        }
+
+        /* Finding rows */
+        .finding-row {
+            padding: 0.7rem 0.85rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--severity-high);
+            font-size: 0.82rem;
+            line-height: 1.55;
+            color: var(--text-secondary);
+            transition: background 0.2s;
+        }
+
+        .finding-row:hover {
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .finding-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Attack path cards */
+        .attack-path {
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(148, 163, 184, 0.05);
+            transition: all 0.2s;
+        }
+
+        .attack-path:hover {
+            background: rgba(15, 23, 42, 0.8);
+            border-color: var(--border-color);
+        }
+
+        .attack-path:last-child {
+            margin-bottom: 0;
+        }
+
+        .attack-path-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .attack-path-title .severity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .severity-critical { background: var(--severity-critical); box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+        .severity-high { background: var(--severity-high); box-shadow: 0 0 8px rgba(249, 115, 22, 0.5); }
+        .severity-medium { background: var(--severity-medium); box-shadow: 0 0 8px rgba(234, 179, 8, 0.5); }
+
+        .attack-path-detail {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding-left: 1.4rem;
+        }
+
+        .attack-path-detail strong {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Evidence tags */
+        .evidence-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .evidence-tag {
+            padding: 0.3rem 0.7rem;
+            background: rgba(34, 211, 238, 0.08);
+            border: 1px solid rgba(34, 211, 238, 0.15);
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-cyan);
+            transition: all 0.2s;
+        }
+
+        .evidence-tag:hover {
+            background: rgba(34, 211, 238, 0.15);
+            border-color: rgba(34, 211, 238, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.25rem 1rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-logo">
+            <div class="shield-icon">🛡️</div>
+            <h1>SynkScreen</h1>
+        </div>
+        <p>Automated Security Reconnaissance Dashboard</p>
+    </header>
+
+    <!-- Send Form -->
+    <section class="send-section glass-card">
+        <div class="card-header">
+            <div class="icon icon-send">🚀</div>
+            <h2>Launch Scan</h2>
+        </div>
+        <form id="sendForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="ipaddress">Target IP Address</label>
+                    <input type="text" id="ipaddress" placeholder="192.168.1.10" required>
+                </div>
+                <div class="form-group">
+                    <label for="port">Port</label>
+                    <input type="text" id="port" placeholder="8080" required>
+                </div>
+                <div class="form-group">
+                    <label for="scanApiKey">Scan API Key</label>
+                    <input type="password" id="scanApiKey" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn-scan" id="scanBtn">
+                    Initiate Scan
+                </button>
+            </div>
+        </form>
+        <div class="send-status" id="sendStatus"></div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section">
+        <div class="results-header">
+            <div class="results-header-left">
+                <h2>Scan Results</h2>
+            </div>
+            <div class="status-badge waiting" id="statusBadge">
+                <span class="dot"></span>
+                <span id="statusText">Waiting</span>
+            </div>
+        </div>
+
+        <div id="resultsContainer">
+            <div class="results-placeholder glass-card" id="placeholder">
+                <div class="placeholder-icon">🔍</div>
+                <p>No scan results yet</p>
+                <p class="sub">Launch a scan or wait for n8n to deliver results</p>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // ── State ──
+    let lastResultHash = null;
+    let pollingInterval = null;
+    let scanApiKey = '';
+
+    // ── Form Submit ──
+    document.getElementById('sendForm')
+        .addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('scanBtn');
+            const status = document.getElementById('sendStatus');
+
+            btn.disabled = true;
+            btn.textContent = 'Scanning…';
+            status.className = 'send-status';
+            status.textContent = 'Sending request to n8n…';
+
+            const data = {
+                ipaddress: document.getElementById('ipaddress').value,
+                port: document.getElementById('port').value
+            };
+            scanApiKey = document.getElementById('scanApiKey').value;
+
+            try {
+                const response = await fetch('/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Scan-API-Key': scanApiKey
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.text();
+                if (!response.ok) throw new Error(result || `HTTP ${response.status}`);
+                status.className = 'send-status success';
+                status.textContent = '✓ ' + result;
+
+                // Start polling for results
+                startPolling();
+
+            } catch (err) {
+                status.className = 'send-status error';
+                status.textContent = '✗ ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Initiate Scan';
+            }
+        });
+
+    // ── Polling ──
+    function startPolling() {
+        if (pollingInterval) return; // already polling
+
+        updateBadge('connected', 'Polling');
+
+        pollingInterval = setInterval(async () => {
+            try {
+                const res = await fetch('/api/scan-results/latest', {
+                    headers: { 'X-Scan-API-Key': scanApiKey }
+                });
+                if (res.status === 204) return; // no data yet
+
+                const text = await res.text();
+                const hash = simpleHash(text);
+
+                if (hash !== lastResultHash) {
+                    lastResultHash = hash;
+                    const data = JSON.parse(text);
+                    renderResults(data);
+                }
+            } catch (err) {
+                console.error('Polling error:', err);
+            }
+        }, 3000);
+    }
+
+    function simpleHash(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0;
+        }
+        return hash;
+    }
+
+    function updateBadge(state, text) {
+        const badge = document.getElementById('statusBadge');
+        const statusText = document.getElementById('statusText');
+        badge.className = 'status-badge ' + state;
+        statusText.textContent = text;
+    }
+
+    // ── Render Results ──
+    function renderResults(data) {
+        const container = document.getElementById('resultsContainer');
+
+        // 1. Unwrap string if double-encoded JSON
+        let parsed = data;
+        if (typeof parsed === 'string') {
+            try { parsed = JSON.parse(parsed); } catch(e) {}
+        }
+
+        // 2. Unwrap Array (n8n standard item array wrapper)
+        if (Array.isArray(parsed)) {
+            parsed = parsed[0] || {};
+        }
+
+        // 3. Unwrap n8n 'json' or 'body' wrapper if present
+        if (parsed && typeof parsed === 'object') {
+            if (parsed.json && typeof parsed.json === 'object') parsed = parsed.json;
+            else if (parsed.body && typeof parsed.body === 'object') parsed = parsed.body;
+        }
+
+        // 4. Unwrap 'output' property if present
+        let output = parsed;
+        if (parsed && parsed.output) {
+            output = parsed.output;
+        }
+
+        // 5. If output is stringified JSON, parse it
+        if (typeof output === 'string') {
+            try { output = JSON.parse(output); } catch(e) {}
+        }
+
+        if (!output || typeof output !== 'object') {
+            output = {};
+        }
+
+        // Helper for flexible field extraction (supports exact keys, camelCase, snake_case, etc.)
+        function getField(obj, ...keys) {
+            for (let k of keys) {
+                if (obj[k] !== undefined && obj[k] !== null) return obj[k];
+            }
+            const objKeys = Object.keys(obj);
+            for (let k of keys) {
+                const normalizedKey = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const matchedKey = objKeys.find(ok => ok.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedKey);
+                if (matchedKey && obj[matchedKey] !== undefined) return obj[matchedKey];
+            }
+            return '';
+        }
+
+        const systemInfo = getField(output, 'System info', 'systemInfo', 'SystemInfo', 'system_info');
+        const keyFindings = getField(output, 'Key Findings', 'keyFindings', 'KeyFindings', 'key_findings');
+        const attackPaths = getField(output, 'Main Attack Paths', 'mainAttackPaths', 'MainAttackPaths', 'main_attack_paths', 'Attack Paths', 'attackPaths');
+        const evidences = getField(output, 'Evidences', 'evidences', 'Evidence', 'evidence');
+
+        updateBadge('connected', 'Results Ready');
+
+        container.innerHTML = `
+            <div class="results-grid">
+                ${renderSystemInfo(systemInfo)}
+                ${renderKeyFindings(keyFindings)}
+                ${renderAttackPaths(attackPaths)}
+                ${renderEvidences(evidences)}
+            </div>
+        `;
+    }
+
+    function ensureString(raw) {
+        if (typeof raw === 'string') return raw;
+        if (Array.isArray(raw)) return raw.join('\n');
+        if (raw && typeof raw === 'object') {
+            return Object.entries(raw).map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`).join('\n');
+        }
+        return String(raw || '');
+    }
+
+    function renderSystemInfo(rawInput) {
+        const raw = ensureString(rawInput);
+        const lines = raw.split('\n').filter(l => l.trim());
+        const items = [];
+
+        lines.forEach(line => {
+            const colonIdx = line.indexOf(':');
+            if (colonIdx > -1) {
+                const label = line.substring(0, colonIdx).trim();
+                const value = line.substring(colonIdx + 1).trim();
+                items.push({ label, value });
+            }
+        });
+
+        const itemsHtml = items.length > 0 ? items.map(item =>
+            `<div class="info-item">
+                <div class="info-label">${escapeHtml(item.label)}</div>
+                <div class="info-value">${escapeHtml(item.value)}</div>
+            </div>`
+        ).join('') : `<div class="info-item"><div class="info-value">${escapeHtml(raw)}</div></div>`;
+
+        return `
+            <div class="result-card">
+                <div class="result-card-header">
+                    <div class="card-icon icon-system">🖥️</div>
+                    <h3>System Info</h3>
+                </div>
+                <div class="info-grid">
+                    ${itemsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderKeyFindings(rawInput) {
+        const raw = ensureString(rawInput);
+        const lines = raw.split('\n').filter(l => l.trim());
+
+        const findingsHtml = lines.map(line =>
+            `<div class="finding-row">${escapeHtml(line)}</div>`
+        ).join('');
+
+        return `
+            <div class="result-card">
+                <div class="result-card-header">
+                    <div class="card-icon icon-findings">🔍</div>
+                    <h3>Key Findings</h3>
+                </div>
+                ${findingsHtml}
+            </div>
+        `;
+    }
+
+    function renderAttackPaths(rawInput) {
+        const raw = ensureString(rawInput);
+        // Split by emoji severity markers
+        const pathBlocks = raw.split(/(?=🔴|🟠|🟡)/).filter(b => b.trim());
+
+        const pathsHtml = pathBlocks.map(block => {
+            const lines = block.split('\n').filter(l => l.trim());
+            const titleLine = lines[0] || '';
+            const details = lines.slice(1);
+
+            let severityClass = 'severity-medium';
+            if (titleLine.startsWith('🔴')) severityClass = 'severity-critical';
+            else if (titleLine.startsWith('🟠')) severityClass = 'severity-high';
+            else if (titleLine.startsWith('🟡')) severityClass = 'severity-medium';
+
+            // Clean title (remove the emoji prefix for the text)
+            const cleanTitle = titleLine.replace(/^[🔴🟠🟡]\s*/, '');
+
+            const detailsHtml = details.map(d => {
+                const colonIdx = d.indexOf(':');
+                if (colonIdx > -1) {
+                    const key = d.substring(0, colonIdx).trim();
+                    const val = d.substring(colonIdx + 1).trim();
+                    return `<div><strong>${escapeHtml(key)}:</strong> ${escapeHtml(val)}</div>`;
+                }
+                return `<div>${escapeHtml(d)}</div>`;
+            }).join('');
+
+            return `
+                <div class="attack-path">
+                    <div class="attack-path-title">
+                        <span class="severity-dot ${severityClass}"></span>
+                        <span>${escapeHtml(cleanTitle)}</span>
+                    </div>
+                    <div class="attack-path-detail">${detailsHtml}</div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="result-card full-width">
+                <div class="result-card-header">
+                    <div class="card-icon icon-attacks">🎯</div>
+                    <h3>Attack Paths</h3>
+                </div>
+                ${pathsHtml}
+            </div>
+        `;
+    }
+
+    function renderEvidences(rawInput) {
+        const raw = ensureString(rawInput);
+        // Split by commas or known delimiters
+        const tags = raw.split(/,\s*/).filter(t => t.trim());
+
+        const tagsHtml = tags.map(tag =>
+            `<span class="evidence-tag">${escapeHtml(tag.trim())}</span>`
+        ).join('');
+
+        return `
+            <div class="result-card full-width">
+                <div class="result-card-header">
+                    <div class="card-icon icon-evidence">📋</div>
+                    <h3>Evidences</h3>
+                </div>
+                <div class="evidence-tags">
+                    ${tagsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
+
+    // Start polling on page load (in case results are already there)
+    startPolling();
+</script>
+
+</body>
+</html>
